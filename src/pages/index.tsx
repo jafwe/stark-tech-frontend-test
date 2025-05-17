@@ -10,6 +10,121 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
+import { BarPlot } from "@mui/x-charts/BarChart";
+import { LineHighlightPlot, LinePlot } from "@mui/x-charts/LineChart";
+import { ChartContainer } from "@mui/x-charts/ChartContainer";
+import { AllSeriesType } from "@mui/x-charts/models";
+import { ChartsXAxis } from "@mui/x-charts/ChartsXAxis";
+import { ChartsYAxis } from "@mui/x-charts/ChartsYAxis";
+import { ChartsTooltip } from "@mui/x-charts/ChartsTooltip";
+import { ChartsAxisHighlight } from "@mui/x-charts/ChartsAxisHighlight";
+
+const alphabetStock = [
+  {
+    date: "2020-01-01",
+    volume: 1000000,
+    low: 1000000,
+    high: 1000000,
+  },
+  {
+    date: "2020-01-02",
+    volume: 435435,
+    low: 38389,
+    high: 234324,
+  },
+  {
+    date: "2020-01-03",
+    volume: 303993,
+    low: 49999,
+    high: 5000000,
+  },
+];
+const series = [
+  {
+    type: "bar",
+    yAxisId: "volume",
+    label: "Volume",
+    color: "lightgray",
+    data: alphabetStock.map((day) => day.volume),
+    highlightScope: { highlight: "item" },
+  },
+  {
+    type: "line",
+    yAxisId: "price",
+    color: "red",
+    label: "Low",
+    data: alphabetStock.map((day) => day.low),
+    highlightScope: { highlight: "item" },
+  },
+  {
+    type: "line",
+    yAxisId: "price",
+    color: "green",
+    label: "High",
+    data: alphabetStock.map((day) => day.high),
+  },
+] as AllSeriesType[];
+
+export function Combining() {
+  return (
+    <div style={{ width: "100%" }}>
+      <div>
+        <ChartContainer
+          series={series}
+          height={400}
+          xAxis={[
+            {
+              id: "date",
+              data: alphabetStock.map((day) => new Date(day.date)),
+              scaleType: "band",
+              valueFormatter: (value) => value.toLocaleDateString(),
+              height: 40,
+            },
+          ]}
+          yAxis={[
+            { id: "price", scaleType: "linear", position: "left", width: 50 },
+            {
+              id: "volume",
+              scaleType: "linear",
+              position: "right",
+              valueFormatter: (value) =>
+                `${(value / 1000000).toLocaleString()}M`,
+              width: 55,
+            },
+          ]}
+        >
+          <ChartsAxisHighlight x="line" />
+          <BarPlot />
+          <LinePlot />
+
+          <LineHighlightPlot />
+          <ChartsXAxis
+            // label="Date"
+            axisId="date"
+            tickInterval={(value, index) => {
+              return index % 30 === 0;
+            }}
+            tickLabelStyle={{
+              fontSize: 10,
+            }}
+          />
+          <ChartsYAxis
+            label="千元"
+            axisId="price"
+            tickLabelStyle={{ fontSize: 10 }}
+          />
+          <ChartsYAxis
+            label="%"
+            axisId="volume"
+            tickLabelStyle={{ fontSize: 10 }}
+          />
+          <ChartsTooltip />
+        </ChartContainer>
+      </div>
+    </div>
+  );
+}
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,9 +139,9 @@ const geistMono = Geist_Mono({
 export default function Home() {
   return (
     <div
-      className={`${geistSans.className} ${geistMono.className} flex h-screen flex-col items-center bg-[#EDEDED] font-[family-name:var(--font-geist-sans)]`}
+      className={`${geistSans.className} ${geistMono.className} flex h-full flex-col items-center bg-[#EDEDED] font-[family-name:var(--font-geist-sans)]`}
     >
-      <header className={"h-[58px] w-full bg-white flex justify-center"}>
+      <header className={"h-[58px] w-full bg-white border border-[#DFDFDF] flex justify-center"}>
         <Autocomplete
           disablePortal
           options={[]}
@@ -56,23 +171,24 @@ export default function Home() {
           {"123"}
         </div>
 
-        <div className={"bg-white rounded-[3px] border border-[#DFDFDF] flex"}>
+        <div className={"bg-white rounded-[3px] border border-[#DFDFDF]"}>
           <div className={"flex w-full py-4 px-[18px] justify-between"}>
             <div
               className={
                 "rounded-[3px] bg-[#0386F4] py-[10px] px-4 text-[13px]/4.5 font-semifold text-white"
               }
             >
-              {"456456"}
+              {"每月營收"}
             </div>
             <div
               className={
                 "rounded-[3px] bg-[#0386F4] py-[10px] px-4 text-[13px]/4.5 font-semifold text-white"
               }
             >
-              {"789789"}
+              {"近 5 年"}
             </div>
           </div>
+          <Combining />
         </div>
 
         <div className={"bg-white rounded-[3px] border border-[#DFDFDF]"}>
@@ -82,11 +198,51 @@ export default function Home() {
                 "rounded-[3px] bg-[#0386F4] py-[10px] px-4 text-[13px]/4.5 font-semifold text-white"
               }
             >
-              {"456456"}
+              {"詳細數據"}
             </div>
           </div>
           {/* Table */}
-          <div className={"w-full pt-[16px] pb-[18px]"}>
+          <div className={"flex gap-1 w-full pt-[16px] pb-[18px]"}>
+            <TableContainer
+              component={Paper}
+              sx={{
+                borderRadius: "0",
+                boxShadow: "none",
+                border: "1px solid #E9E9E9",
+              }}
+            >
+              <Table aria-label="simple table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell
+                      sx={{ fontWeight: 600, backgroundColor: "#F6F8FA" }}
+                    >
+                      {"年度月份"}
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRow key={"每月營收"}>
+                    <TableCell
+                      sx={{ fontWeight: 600 }}
+                      component="th"
+                      scope="row"
+                    >
+                      {"每月營收"}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow key={"單月營收年增率 (%)"}>
+                    <TableCell
+                      sx={{ fontWeight: 600, backgroundColor: "#F6F8FA" }}
+                      component="th"
+                      scope="row"
+                    >
+                      {"單月營收年增率 (%)"}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
             <BasicTable />
           </div>
         </div>
@@ -118,31 +274,37 @@ function createData(
 const rows = [
   createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
   createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
-  createData("Eclair", 262, 16.0, 24, 6.0),
-  createData("Cupcake", 305, 3.7, 67, 4.3),
-  createData("Gingerbread", 356, 16.0, 49, 3.9),
 ];
 
 export function BasicTable() {
   return (
-    <TableContainer component={Paper}>
+    <TableContainer
+      component={Paper}
+      sx={{
+        borderRadius: "0",
+        boxShadow: "none",
+        border: "1px solid #E9E9E9"
+      }}
+    >
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>
-          <TableRow>
-            <TableCell>Dessert (100g serving)</TableCell>
-            <TableCell align="right">Calories</TableCell>
-            <TableCell align="right">Fat&nbsp;(g)</TableCell>
-            <TableCell align="right">Carbs&nbsp;(g)</TableCell>
-            <TableCell align="right">Protein&nbsp;(g)</TableCell>
+          <TableRow sx={{ backgroundColor: "#F6F8FA" }}>
+            <TableCell sx={{ fontWeight: 600 }}>
+              Dessert (100g serving)
+            </TableCell>
+            <TableCell sx={{ fontWeight: 600 }} align="right">Calories</TableCell>
+            <TableCell sx={{ fontWeight: 600 }} align="right">Fat&nbsp;(g)</TableCell>
+            <TableCell sx={{ fontWeight: 600 }} align="right">Carbs&nbsp;(g)</TableCell>
+            <TableCell sx={{ fontWeight: 600 }} align="right">Protein&nbsp;(g)</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {rows.map((row) => (
             <TableRow
               key={row.name}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              sx={{ "&:last-child td, &:last-child th": {backgroundColor: "#F6F8FA" } }}
             >
-              <TableCell component="th" scope="row">
+              <TableCell  component="th" scope="row">
                 {row.name}
               </TableCell>
               <TableCell align="right">{row.calories}</TableCell>
