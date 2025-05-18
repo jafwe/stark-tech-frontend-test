@@ -1,8 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
-
-import * as React from "react";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -10,121 +8,15 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import Typography from "@mui/material/Typography";
 import { BarPlot } from "@mui/x-charts/BarChart";
-import { LineHighlightPlot, LinePlot } from "@mui/x-charts/LineChart";
+import { LinePlot } from "@mui/x-charts/LineChart";
 import { ChartContainer } from "@mui/x-charts/ChartContainer";
 import { AllSeriesType } from "@mui/x-charts/models";
 import { ChartsXAxis } from "@mui/x-charts/ChartsXAxis";
 import { ChartsYAxis } from "@mui/x-charts/ChartsYAxis";
 import { ChartsTooltip } from "@mui/x-charts/ChartsTooltip";
-import { ChartsAxisHighlight } from "@mui/x-charts/ChartsAxisHighlight";
-
-const alphabetStock = [
-  {
-    date: "2020-01-01",
-    volume: 1000000,
-    low: 1000000,
-    high: 1000000,
-  },
-  {
-    date: "2020-01-02",
-    volume: 435435,
-    low: 38389,
-    high: 234324,
-  },
-  {
-    date: "2020-01-03",
-    volume: 303993,
-    low: 49999,
-    high: 5000000,
-  },
-];
-const series = [
-  {
-    type: "bar",
-    yAxisId: "volume",
-    label: "Volume",
-    color: "lightgray",
-    data: alphabetStock.map((day) => day.volume),
-    highlightScope: { highlight: "item" },
-  },
-  {
-    type: "line",
-    yAxisId: "price",
-    color: "red",
-    label: "Low",
-    data: alphabetStock.map((day) => day.low),
-    highlightScope: { highlight: "item" },
-  },
-  {
-    type: "line",
-    yAxisId: "price",
-    color: "green",
-    label: "High",
-    data: alphabetStock.map((day) => day.high),
-  },
-] as AllSeriesType[];
-
-export function Combining() {
-  return (
-    <div style={{ width: "100%" }}>
-      <div>
-        <ChartContainer
-          series={series}
-          height={400}
-          xAxis={[
-            {
-              id: "date",
-              data: alphabetStock.map((day) => new Date(day.date)),
-              scaleType: "band",
-              valueFormatter: (value) => value.toLocaleDateString(),
-              height: 40,
-            },
-          ]}
-          yAxis={[
-            { id: "price", scaleType: "linear", position: "left", width: 50 },
-            {
-              id: "volume",
-              scaleType: "linear",
-              position: "right",
-              valueFormatter: (value) =>
-                `${(value / 1000000).toLocaleString()}M`,
-              width: 55,
-            },
-          ]}
-        >
-          <ChartsAxisHighlight x="line" />
-          <BarPlot />
-          <LinePlot />
-
-          <LineHighlightPlot />
-          <ChartsXAxis
-            // label="Date"
-            axisId="date"
-            tickInterval={(value, index) => {
-              return index % 30 === 0;
-            }}
-            tickLabelStyle={{
-              fontSize: 10,
-            }}
-          />
-          <ChartsYAxis
-            label="千元"
-            axisId="price"
-            tickLabelStyle={{ fontSize: 10 }}
-          />
-          <ChartsYAxis
-            label="%"
-            axisId="volume"
-            tickLabelStyle={{ fontSize: 10 }}
-          />
-          <ChartsTooltip />
-        </ChartContainer>
-      </div>
-    </div>
-  );
-}
+import { monthRevenue, Revenue } from "@/constants/stock-info";
+import { useEffect, useRef } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -139,9 +31,13 @@ const geistMono = Geist_Mono({
 export default function Home() {
   return (
     <div
-      className={`${geistSans.className} ${geistMono.className} flex h-full flex-col items-center bg-[#EDEDED] font-[family-name:var(--font-geist-sans)]`}
+      className={`${geistSans.className} ${geistMono.className} flex h-screen flex-col items-center overflow-y-auto bg-[#EDEDED] pt-[58px] font-[family-name:var(--font-geist-sans)]`}
     >
-      <header className={"h-[58px] w-full bg-white border border-[#DFDFDF] flex justify-center"}>
+      <header
+        className={
+          "fixed z-10 top-0 h-[58px] w-full bg-white border border-[#DFDFDF] flex justify-center"
+        }
+      >
         <Autocomplete
           disablePortal
           options={[]}
@@ -165,14 +61,14 @@ export default function Home() {
       >
         <div
           className={
-            "bg-[#FAFAFA] rounded-[3px] text-[18px]/4.5 border border-[#DFDFDF] py-4 px-[18px] text-[#434343]"
+            "bg-[#FAFAFA] rounded-[3px] text-[18px]/4.5 border border-[#DFDFDF] py-4 px-[18px] text-[#434343] font-semibold"
           }
         >
-          {"123"}
+          {"台積電 (2330)"}
         </div>
 
         <div className={"bg-white rounded-[3px] border border-[#DFDFDF]"}>
-          <div className={"flex w-full py-4 px-[18px] justify-between"}>
+          <div className={"flex w-full pt-4 px-[18px] justify-between"}>
             <div
               className={
                 "rounded-[3px] bg-[#0386F4] py-[10px] px-4 text-[13px]/4.5 font-semifold text-white"
@@ -188,11 +84,11 @@ export default function Home() {
               {"近 5 年"}
             </div>
           </div>
-          <Combining />
+          <CombinedChart />
         </div>
 
         <div className={"bg-white rounded-[3px] border border-[#DFDFDF]"}>
-          <div className={"flex py-4 px-[18px] justify-between"}>
+          <div className={"flex pt-4 px-[18px] justify-between"}>
             <div
               className={
                 "rounded-[3px] bg-[#0386F4] py-[10px] px-4 text-[13px]/4.5 font-semifold text-white"
@@ -202,47 +98,12 @@ export default function Home() {
             </div>
           </div>
           {/* Table */}
-          <div className={"flex gap-1 w-full pt-[16px] pb-[18px]"}>
-            <TableContainer
-              component={Paper}
-              sx={{
-                borderRadius: "0",
-                boxShadow: "none",
-                border: "1px solid #E9E9E9",
-              }}
-            >
-              <Table aria-label="simple table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell
-                      sx={{ fontWeight: 600, backgroundColor: "#F6F8FA" }}
-                    >
-                      {"年度月份"}
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  <TableRow key={"每月營收"}>
-                    <TableCell
-                      sx={{ fontWeight: 600 }}
-                      component="th"
-                      scope="row"
-                    >
-                      {"每月營收"}
-                    </TableCell>
-                  </TableRow>
-                  <TableRow key={"單月營收年增率 (%)"}>
-                    <TableCell
-                      sx={{ fontWeight: 600, backgroundColor: "#F6F8FA" }}
-                      component="th"
-                      scope="row"
-                    >
-                      {"單月營收年增率 (%)"}
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TableContainer>
+          <div
+            className={
+              "grid grid-cols-[1fr_3fr] gap-1 w-full pt-[16px] pb-[18px]"
+            }
+          >
+            <HeaderTable />
             <BasicTable />
           </div>
         </div>
@@ -261,58 +122,246 @@ export default function Home() {
   );
 }
 
-function createData(
-  name: string,
-  calories: number,
-  fat: number,
-  carbs: number,
-  protein: number
-) {
-  return { name, calories, fat, carbs, protein };
+export function CombinedChart() {
+  const { revenue, percentage } = monthRevenue.reduce(
+    (acc, cur, _, arr) => {
+      const lastMonth = arr.find(
+        (month) =>
+          cur.revenue_year - 1 === month.revenue_year &&
+          cur.revenue_month === month.revenue_month
+      );
+      if (lastMonth) {
+        acc.revenue.push(cur);
+        acc.percentage.push(cur.revenue / lastMonth.revenue - 1);
+      }
+      return acc;
+    },
+    { revenue: [] as Revenue[], percentage: [] as number[] }
+  );
+
+  const months = revenue.map((month) =>
+    month.date.split("-").slice(0, 2).join("")
+  );
+
+  const series: AllSeriesType[] = [
+    {
+      type: "bar",
+      yAxisId: "revenue",
+      label: "每月營收",
+      color: "#E8AF00",
+      data: revenue.map((day) => day.revenue / 1000),
+    },
+    {
+      type: "line",
+      yAxisId: "percentage",
+      color: "#CB4B4B",
+      label: "單月營收年增率 (%)",
+      data: percentage,
+    },
+  ];
+
+  return (
+    <div className="relative">
+      <ChartContainer
+        series={series}
+        height={350}
+        xAxis={[
+          {
+            id: "date",
+            data: months,
+            scaleType: "band",
+            height: 40,
+          },
+        ]}
+        yAxis={[
+          {
+            id: "revenue",
+            scaleType: "linear",
+            position: "left",
+            width: 100,
+          },
+          {
+            id: "percentage",
+            scaleType: "linear",
+            width: 50,
+            position: "right",
+          },
+        ]}
+      >
+        {/* <ChartsLegend sx={{ position: "absolute", bottom: 0, right: 0 }} /> */}
+        <div
+          className="absolute bottom-0 right-0 h-12 w-12"
+          style={{
+            backgroundColor: "red",
+            width: "100px",
+            height: "100px",
+          }}
+        >
+          {"test"}
+        </div>
+
+        <BarPlot />
+        <LinePlot />
+        <ChartsXAxis
+          axisId="date"
+          tickInterval={(value) => {
+            return value.endsWith("01");
+          }}
+          tickLabelStyle={{
+            fontSize: 12,
+          }}
+        />
+        <ChartsYAxis
+          label="%"
+          axisId="percentage"
+          tickLabelStyle={{ fontSize: 12 }}
+        />
+        <ChartsYAxis
+          label="千元"
+          axisId="revenue"
+          tickLabelStyle={{ fontSize: 12 }}
+        />
+        <ChartsTooltip />
+      </ChartContainer>
+    </div>
+  );
 }
 
-const rows = [
-  createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
-  createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
-];
-
-export function BasicTable() {
+export function HeaderTable() {
   return (
     <TableContainer
       component={Paper}
       sx={{
         borderRadius: "0",
         boxShadow: "none",
-        border: "1px solid #E9E9E9"
+      }}
+    >
+      <Table aria-label="simple table">
+        <TableHead>
+          <TableRow>
+            <TableCell
+              sx={{
+                fontWeight: 600,
+                backgroundColor: "#F6F8FA",
+                border: "1px solid #E9E9E9",
+              }}
+            >
+              {"年度月份"}
+            </TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          <TableRow key={"每月營收"}>
+            <TableCell
+              sx={{ fontWeight: 600, border: "1px solid #E9E9E9" }}
+              component="th"
+              scope="row"
+            >
+              {"每月營收"}
+            </TableCell>
+          </TableRow>
+          <TableRow key={"單月營收年增率 (%)"}>
+            <TableCell
+              sx={{
+                fontWeight: 600,
+                backgroundColor: "#F6F8FA",
+                border: "1px solid #E9E9E9",
+              }}
+              component="th"
+              scope="row"
+            >
+              {"單月營收年增率 (%)"}
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+}
+
+export function BasicTable() {
+  const tableRef = useRef<HTMLDivElement>(null);
+  const { revenue, percentage } = monthRevenue.reduce(
+    (acc, cur, _, arr) => {
+      const lastMonth = arr.find(
+        (month) =>
+          cur.revenue_year - 1 === month.revenue_year &&
+          cur.revenue_month === month.revenue_month
+      );
+      if (lastMonth) {
+        acc.revenue.push(cur);
+        acc.percentage.push(cur.revenue / lastMonth.revenue - 1);
+      }
+      return acc;
+    },
+    { revenue: [] as Revenue[], percentage: [] as number[] }
+  );
+
+  const months = revenue.map((month) =>
+    month.date.split("-").slice(0, 2).join("")
+  );
+
+  useEffect(() => {
+    if (tableRef.current) {
+      tableRef.current.scrollTo({
+        left: tableRef.current.scrollWidth,
+        behavior: "auto",
+      });
+    }
+  }, []);
+
+  return (
+    <TableContainer
+      ref={tableRef}
+      component={Paper}
+      sx={{
+        borderRadius: "0",
+        boxShadow: "none",
       }}
     >
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>
           <TableRow sx={{ backgroundColor: "#F6F8FA" }}>
-            <TableCell sx={{ fontWeight: 600 }}>
-              Dessert (100g serving)
-            </TableCell>
-            <TableCell sx={{ fontWeight: 600 }} align="right">Calories</TableCell>
-            <TableCell sx={{ fontWeight: 600 }} align="right">Fat&nbsp;(g)</TableCell>
-            <TableCell sx={{ fontWeight: 600 }} align="right">Carbs&nbsp;(g)</TableCell>
-            <TableCell sx={{ fontWeight: 600 }} align="right">Protein&nbsp;(g)</TableCell>
+            {months.map((month) => (
+              <TableCell
+                sx={{ fontWeight: 600, border: "1px solid #E9E9E9" }}
+                key={month}
+                align="right"
+              >
+                {month}
+              </TableCell>
+            ))}
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) => (
-            <TableRow
-              key={row.name}
-              sx={{ "&:last-child td, &:last-child th": {backgroundColor: "#F6F8FA" } }}
-            >
-              <TableCell  component="th" scope="row">
-                {row.name}
+          <TableRow key={"revenue"}>
+            {revenue.map((month) => (
+              <TableCell
+                key={month.date}
+                sx={{
+                  border: "1px solid #E9E9E9",
+                }}
+                align="right"
+              >
+                {month.revenue / 1000}
               </TableCell>
-              <TableCell align="right">{row.calories}</TableCell>
-              <TableCell align="right">{row.fat}</TableCell>
-              <TableCell align="right">{row.carbs}</TableCell>
-              <TableCell align="right">{row.protein}</TableCell>
-            </TableRow>
-          ))}
+            ))}
+          </TableRow>
+
+          <TableRow key={"percentage"}>
+            {percentage.map((percent, index) => (
+              <TableCell
+                key={index}
+                sx={{
+                  backgroundColor: "#F6F8FA",
+                  border: "1px solid #E9E9E9",
+                }}
+                align="right"
+              >
+                {Math.round(percent * 10000) / 100}
+              </TableCell>
+            ))}
+          </TableRow>
         </TableBody>
       </Table>
     </TableContainer>
