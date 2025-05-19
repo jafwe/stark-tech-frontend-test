@@ -79,16 +79,6 @@ export default function CombinedChart() {
       ]}
     >
       {/* <ChartsLegend sx={{ position: "absolute", bottom: 0, right: 0 }} /> */}
-      <div
-        className="absolute bottom-0 right-0 h-12 w-12"
-        style={{
-          backgroundColor: "red",
-          width: "100px",
-          height: "100px",
-        }}
-      >
-        {"test"}
-      </div>
 
       <BarPlot />
       <LinePlot />

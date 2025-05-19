@@ -1,37 +1,153 @@
-import { Geist, Geist_Mono } from "next/font/google";
-import { Revenue, stockInfo, StockOption } from "@/constants/stock-info";
-import { useEffect, useMemo, useState } from "react";
 import Autocomplete from "@/components/Autocomplete";
-import DataTable from "@/components/DataTable";
 import CombinedChart from "@/components/CombinedChart";
+import DataTable from "@/components/DataTable";
+import { Revenue, stockInfo, StockOption } from "@/constants/stock-info";
+import { autocompleteClasses } from "@mui/material/Autocomplete";
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Chip, { chipClasses } from "@mui/material/Chip";
+import Container from "@mui/material/Container";
+import { outlinedInputClasses } from "@mui/material/OutlinedInput";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import Typography from "@mui/material/Typography";
+import { useEffect, useMemo, useState } from "react";
+import Skeleton from "@mui/material/Skeleton";
+import Select, { SelectChangeEvent, selectClasses } from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 
-// const theme = createTheme({
-//   components: {
-//     MuiOutlinedInput: {
-//       styleOverrides: {
-//         root: {
-//           fontSize: "15px",
-//           padding: 0
-//         },
-//       },
-//     },
-//   },
-// });
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+export const theme = createTheme({
+  components: {
+    MuiCard: {
+      defaultProps: {
+        sx: {
+          backgroundColor: "white",
+          border: "1px solid #DFDFDF",
+          borderRadius: "3px",
+          padding: "0",
+          boxShadow: "none",
+        },
+      },
+    },
+    MuiCardContent: {
+      defaultProps: {
+        sx: {
+          display: "flex",
+          justifyContent: "space-between",
+          padding: "16px 18px 0px 18px",
+          boxShadow: "none",
+        },
+      },
+    },
+    MuiSelect: {
+      defaultProps: {
+        sx: {
+          [`& .${selectClasses.standard}`]: {
+            backgroundColor: "#0386F4",
+            color: "white",
+            borderRadius: "3px",
+            height: "auto",
+            fontWeight: 600,
+            fontSize: "13px",
+            lineHeight: "18px",
+            padding: "10px 16px 10px 16px !important",
+            border: "none",
+            textAlign: "right",
+            "&:hover": {
+              border: "none",
+            },
+            "&:focus": {
+              border: "none",
+              borderRadius: "3px",
+            },
+          },
+          "&:after": {
+            border: "none",
+          },
+          "&:before": {
+            border: "none",
+          },
+        },
+      },
+    },
+    MuiChip: {
+      defaultProps: {
+        sx: {
+          backgroundColor: "#0386F4",
+          color: "white",
+          borderRadius: "3px",
+          height: "auto",
+          fontWeight: 600,
+          fontSize: "13px",
+          lineHeight: "18px",
+          padding: "10px 16px",
+          [`& .${chipClasses.label}`]: {
+            padding: "0",
+          },
+        },
+      },
+    },
+    MuiAutocomplete: {
+      defaultProps: {
+        sx: {
+          width: 400,
+          backgroundColor: "#FAFAFA",
+          [`& .${outlinedInputClasses.root}`]: {
+            padding: "0 0 0 8px",
+            boxShadow: "inset 0 0 3px 1px #E9E9E9",
+          },
+          [`& .${outlinedInputClasses.notchedOutline}`]: {
+            borderRadius: "3px",
+            borderColor: "#DFDFDF",
+          },
+          [`& .${autocompleteClasses.popupIndicator}`]: {
+            transform: "none",
+          },
+        },
+      },
+    },
+    MuiTable: {
+      defaultProps: {
+        sx: {
+          borderRadius: "0",
+        },
+      },
+    },
+    MuiTableContainer: {
+      defaultProps: {
+        sx: {
+          borderRadius: "0",
+          boxShadow: "none",
+        },
+      },
+    },
+    MuiTableRow: {
+      defaultProps: {
+        sx: { "&:last-child": { backgroundColor: "#F6F8FA" } },
+      },
+    },
+    MuiTableCell: {
+      defaultProps: {
+        sx: { fontWeight: 600, border: "1px solid #E9E9E9" },
+      },
+    },
+    MuiTypography: {
+      defaultProps: {
+        color: "#434343",
+        whiteSpace: "pre-line",
+        align: "right",
+        fontSize: 13,
+        lineHeight: "24px",
+      },
+    },
+  },
 });
 
 export default function Home() {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [stock, setStock] = useState<StockOption | null>(null);
   const [revenueList, setRevenueList] = useState<Revenue[]>([]);
-  const [yearInterval, setYearInterval] = useState<1 | 3 | 5>(5);
+  const [yearInterval, setYearInterval] = useState<number>(5);
 
   const { monthRevenue, percentage, timeStamps } = useMemo(() => {
     const { monthRevenue, percentage } = revenueList.reduce(
@@ -73,89 +189,125 @@ export default function Home() {
     if (!stock) return;
 
     const getRevenue = async () => {
-      const res = await fetch(
-        `https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockMonthRevenue&data_id=${
-          stock.id
-        }&start_date=${
-          new Date().getFullYear() - 6
-        }-${new Date().getMonth()}-01`
-      );
-      const data = await res.json();
-      setRevenueList(data.data);
+      try {
+        setIsLoading(true);
+        const res = await fetch(
+          `https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockMonthRevenue&data_id=${
+            stock.id
+          }&start_date=${
+            new Date().getFullYear() - 6
+          }-${new Date().getMonth()}-01`
+        );
+        const data = await res.json();
+        setRevenueList(data.data);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsLoading(false);
+      }
     };
     getRevenue();
   }, [stock]);
 
   return (
-    // <ThemeProvider theme={theme}>
-    <div
-      className={`${geistSans.className} ${geistMono.className} flex h-screen flex-col w-screen items-center overflow-auto bg-[#EDEDED] pt-[58px] font-[family-name:var(--font-geist-sans)]`}
-    >
-      <header
-        className={
-          "fixed z-10 top-0 h-[58px] w-full bg-white border border-[#DFDFDF] flex justify-center items-center py-[10px]"
-        }
+    <ThemeProvider theme={theme}>
+      <Box
+        sx={{
+          display: "flex",
+          height: "100vh",
+          width: "100vw",
+          flexDirection: "column",
+          alignItems: "center",
+          overflow: "auto",
+          backgroundColor: "#EDEDED",
+          paddingTop: "58px",
+        }}
       >
-        <Autocomplete
-          options={stockOptions}
-          onChange={(option) => setStock(option)}
-        />
-      </header>
-      <main
-        className={"w-[715px] pt-[18px] flex flex-col items-stretch gap-[6px]"}
-      >
-        <div
-          className={
-            "bg-[#FAFAFA] rounded-[3px] text-[18px]/4.5 border border-[#DFDFDF] py-4 px-[18px] text-[#434343] font-semibold"
-          }
+        <Box
+          sx={{
+            position: "fixed",
+            zIndex: 10,
+            top: 0,
+            height: "58px",
+            width: "100%",
+            backgroundColor: "white",
+            border: "1px solid #DFDFDF",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
         >
-          {stock ? `${stock.label} (${stock.id})` : "請選擇股票"}
-        </div>
-
-        <div className={"bg-white rounded-[3px] border border-[#DFDFDF]"}>
-          <div className={"flex w-full pt-4 px-[18px] justify-between"}>
-            <div
-              className={
-                "rounded-[3px] bg-[#0386F4] py-[10px] px-4 text-[13px]/4.5 font-semifold text-white"
-              }
-            >
-              {"每月營收"}
-            </div>
-            <div
-              className={
-                "rounded-[3px] bg-[#0386F4] py-[10px] px-4 text-[13px]/4.5 font-semifold text-white"
-              }
-            >
-              {"近 5 年"}
-            </div>
-          </div>
-          <CombinedChart />
-        </div>
-
-        <div className={"bg-white rounded-[3px] border border-[#DFDFDF]"}>
-          <div className={"flex pt-4 px-[18px] justify-between"}>
-            <div
-              className={
-                "rounded-[3px] bg-[#0386F4] py-[10px] px-4 text-[13px]/4.5 font-semifold text-white"
-              }
-            >
-              {"詳細數據"}
-            </div>
-          </div>
-          <DataTable />
-        </div>
-
-        <p
-          className={
-            "self-end whitespace-pre-line text-[#434343] text-[13px]/6 text-right"
-          }
+          <Autocomplete
+            placeholder={"輸入台股代號，查看公司價值"}
+            options={stockOptions}
+            onChange={(option) => setStock(option)}
+          />
+        </Box>
+        <Container
+          sx={{
+            width: "715px",
+            paddingTop: "18px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "6px",
+          }}
         >
-          {
-            "圖表單位：千元，數據來自公開資訊觀測站\n網頁圖表歡迎轉貼引用，請註明出處為財報狗"
-          }
-        </p>
-      </main>
-    </div>
-    // </ThemeProvider>
+          <Box
+            sx={{
+              backgroundColor: "#FAFAFA",
+              borderRadius: "3px",
+              border: "1px solid #DFDFDF",
+              padding: "16px 18px",
+              fontWeight: 600,
+              fontSize: "18px",
+              lineHeight: "18px",
+              color: "#434343",
+            }}
+          >
+            {stock ? `${stock.label} (${stock.id})` : "請選擇股票"}
+          </Box>
+
+          <Card>
+            <CardContent>
+              <Chip label={"每月營收"} />
+              <Select
+                variant="standard"
+                value={yearInterval.toString()}
+                IconComponent={"span"}
+                onChange={(event: SelectChangeEvent) => {
+                  setYearInterval(parseInt(event.target.value));
+                }}
+              >
+                <MenuItem value={1}>近 1 年</MenuItem>
+                <MenuItem value={3}>近 3 年</MenuItem>
+                <MenuItem value={5}>近 5 年</MenuItem>
+              </Select>
+            </CardContent>
+            {isLoading ? (
+              <Skeleton variant="rectangular" height={350} width={"100%"} />
+            ) : (
+              <CombinedChart />
+            )}
+          </Card>
+
+          <Card>
+            <CardContent>
+              <Chip label={"詳細數據"} />
+            </CardContent>
+            {isLoading ? (
+              <Skeleton variant="rectangular" height={350} width={"100%"} />
+            ) : (
+              <DataTable />
+            )}
+          </Card>
+
+          <Typography>
+            {
+              "圖表單位：千元，數據來自公開資訊觀測站\n網頁圖表歡迎轉貼引用，請註明出處為財報狗"
+            }
+          </Typography>
+        </Container>
+      </Box>
+    </ThemeProvider>
   );
 }

@@ -7,6 +7,7 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { monthRevenue, Revenue } from "@/constants/stock-info";
 import { useEffect, useRef } from "react";
+import { theme } from "@/pages";
 
 export default function DataTable() {
   return (
@@ -21,47 +22,21 @@ export default function DataTable() {
 
 export function HeaderTable() {
   return (
-    <TableContainer
-      component={Paper}
-      sx={{
-        borderRadius: "0",
-        boxShadow: "none",
-      }}
-    >
+    <TableContainer component={Paper}>
       <Table aria-label="simple table">
         <TableHead>
           <TableRow>
-            <TableCell
-              sx={{
-                fontWeight: 600,
-                backgroundColor: "#F6F8FA",
-                border: "1px solid #E9E9E9",
-              }}
-            >
-              {"年度月份"}
-            </TableCell>
+            <TableCell>{"年度月份"}</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           <TableRow key={"每月營收"}>
-            <TableCell
-              sx={{ fontWeight: 600, border: "1px solid #E9E9E9" }}
-              component="th"
-              scope="row"
-            >
+            <TableCell component="th" scope="row">
               {"每月營收"}
             </TableCell>
           </TableRow>
           <TableRow key={"單月營收年增率 (%)"}>
-            <TableCell
-              sx={{
-                fontWeight: 600,
-                backgroundColor: "#F6F8FA",
-                border: "1px solid #E9E9E9",
-              }}
-              component="th"
-              scope="row"
-            >
+            <TableCell component="th" scope="row">
               {"單月營收年增率 (%)"}
             </TableCell>
           </TableRow>
@@ -103,23 +78,12 @@ export function BasicTable() {
   }, []);
 
   return (
-    <TableContainer
-      ref={tableRef}
-      component={Paper}
-      sx={{
-        borderRadius: "0",
-        boxShadow: "none",
-      }}
-    >
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
+    <TableContainer ref={tableRef} component={Paper}>
+      <Table aria-label="simple table">
         <TableHead>
-          <TableRow sx={{ backgroundColor: "#F6F8FA" }}>
+          <TableRow>
             {months.map((month) => (
-              <TableCell
-                sx={{ fontWeight: 600, border: "1px solid #E9E9E9" }}
-                key={month}
-                align="right"
-              >
+              <TableCell key={month} align="right">
                 {month}
               </TableCell>
             ))}
@@ -129,10 +93,8 @@ export function BasicTable() {
           <TableRow key={"revenue"}>
             {revenue.map((month) => (
               <TableCell
+                sx={{ fontWeight: 400, border: "1px solid #E9E9E9" }}
                 key={month.date}
-                sx={{
-                  border: "1px solid #E9E9E9",
-                }}
                 align="right"
               >
                 {month.revenue / 1000}
@@ -143,11 +105,8 @@ export function BasicTable() {
           <TableRow key={"percentage"}>
             {percentage.map((percent, index) => (
               <TableCell
+                sx={{ fontWeight: 400, border: "1px solid #E9E9E9" }}
                 key={index}
-                sx={{
-                  backgroundColor: "#F6F8FA",
-                  border: "1px solid #E9E9E9",
-                }}
                 align="right"
               >
                 {Math.round(percent * 10000) / 100}

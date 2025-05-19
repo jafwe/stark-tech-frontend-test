@@ -1,4 +1,5 @@
 import Autocomplete, { autocompleteClasses } from "@mui/material/Autocomplete";
+import { outlinedInputClasses } from "@mui/material/OutlinedInput";
 import TextField from "@mui/material/TextField";
 import { StockOption } from "@/constants/stock-info";
 import SearchIcon from "@/components/SearchIcon";
@@ -6,10 +7,12 @@ import SearchIcon from "@/components/SearchIcon";
 interface AutocompleteProps {
   options: StockOption[];
   onChange: (option: StockOption) => void;
+  placeholder?: string;
 }
 
 export default function AutocompleteComponent({
   options,
+  placeholder,
   onChange,
 }: AutocompleteProps) {
   return (
@@ -31,21 +34,6 @@ export default function AutocompleteComponent({
             id.toLowerCase().includes(inputValue.toLowerCase())
         );
       }}
-      sx={{
-        width: 400,
-        backgroundColor: "#FAFAFA",
-        "& .MuiOutlinedInput-root": {
-          padding: "0 0px 0 8px",
-          boxShadow: "inset 0 0 3px 1px #E9E9E9",
-        },
-        "& .MuiOutlinedInput-notchedOutline": {
-          borderRadius: "3px",
-          borderColor: "#DFDFDF",
-        },
-        [`& .${autocompleteClasses.popupIndicator}`]: {
-          transform: "none",
-        },
-      }}
       renderInput={(params) => (
         <TextField
           {...params}
@@ -59,7 +47,7 @@ export default function AutocompleteComponent({
               },
             },
           }}
-          placeholder={"輸入台股代號，查看公司價值"}
+          placeholder={placeholder}
         />
       )}
       popupIcon={<SearchIcon />}
