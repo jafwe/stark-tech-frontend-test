@@ -137,6 +137,11 @@ export type StockInfo = {
   date: string;
 };
 
+export type StockOption = {
+  id: string
+  label: string
+};
+
 export const stockInfo = [
   { "industry_category": "ETF", "stock_id": "0050", "stock_name": "元大台灣50", "type": "twse", "date": "2025-05-18" },
   { "industry_category": "ETF", "stock_id": "0051", "stock_name": "元大中型100", "type": "twse", "date": "2025-05-18" },
