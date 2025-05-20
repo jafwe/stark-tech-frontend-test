@@ -26,7 +26,7 @@ export default function DataTable({
         display: "grid",
         gridTemplateColumns: "1fr 3fr",
         width: "100%",
-        paddingTop: 4,
+        paddingTop: "16px",
         paddingBottom: "18px",
         gap: 1,
       }}
