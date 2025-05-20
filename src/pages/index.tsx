@@ -18,17 +18,9 @@ import Skeleton from "@mui/material/Skeleton";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 
-const FINMIND_TOKEN = process.env.NEXT_PUBLIC_FINMIND_TOKEN || "";
-
 export async function getStaticProps() {
   const res = await fetch(
-    `https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockInfo`,
-    {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${FINMIND_TOKEN}`,
-      },
-    }
+    `https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockInfo`
   );
   const { data: stockInfo } = (await res.json()) as { data: StockInfo[] };
 
@@ -108,14 +100,7 @@ export default function Home({
         }-${new Date().getMonth()}-01`;
 
         const res = await fetch(
-          `https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockMonthRevenue&data_id=${id}&start_date=${startDate}`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${FINMIND_TOKEN}`,
-              // Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRlIjoiMjAyNS0wNS0yMCAxNjoyMzoxMyIsInVzZXJfaWQiOiJqYWZ3ZSIsImlwIjoiMS4zNC4yMjQuMTEzIiwiZXhwIjoxNzQ4MzM0MTkzfQ.kYFaFcx5DtClHIhxesS2Rsz4Vy68BmDjdSgrOFQyK5U`,
-            },
-          }
+          `https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockMonthRevenue&data_id=${id}&start_date=${startDate}`
         );
         const data = await res.json();
         setRevenueList(data.data);
