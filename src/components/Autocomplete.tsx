@@ -1,8 +1,7 @@
-import Autocomplete, { autocompleteClasses } from "@mui/material/Autocomplete";
-import { outlinedInputClasses } from "@mui/material/OutlinedInput";
-import TextField from "@mui/material/TextField";
-import { StockOption } from "@/constants/stock-info";
 import SearchIcon from "@/components/SearchIcon";
+import { StockOption } from "@/constants/stock-info";
+import Autocomplete from "@mui/material/Autocomplete";
+import TextField from "@mui/material/TextField";
 
 interface AutocompleteProps {
   options: StockOption[];

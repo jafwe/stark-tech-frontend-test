@@ -1,29 +1,50 @@
+import { Revenue } from "@/constants/stock-info";
+import { Box } from "@mui/material";
+import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-import { monthRevenue, Revenue } from "@/constants/stock-info";
 import { useEffect, useRef } from "react";
-import { theme } from "@/pages";
 
-export default function DataTable() {
+interface DataTableProps {
+  monthRevenue: Revenue[];
+  percentage: number[];
+  timestamps: string[];
+}
+
+export default function DataTable({
+  monthRevenue,
+  percentage,
+  timestamps,
+}: DataTableProps) {
   return (
-    <div
-      className={"grid grid-cols-[1fr_3fr] gap-1 w-full pt-[16px] pb-[18px]"}
+    <Box
+      sx={{
+        display: "grid",
+        gridTemplateColumns: "1fr 3fr",
+        width: "100%",
+        paddingTop: 4,
+        paddingBottom: "18px",
+        gap: 1,
+      }}
     >
       <HeaderTable />
-      <BasicTable />
-    </div>
+      <BasicTable
+        monthRevenue={monthRevenue}
+        percentage={percentage}
+        timestamps={timestamps}
+      />
+    </Box>
   );
 }
 
 export function HeaderTable() {
   return (
     <TableContainer component={Paper}>
-      <Table aria-label="simple table">
+      <Table aria-label={"simple table"}>
         <TableHead>
           <TableRow>
             <TableCell>{"年度月份"}</TableCell>
@@ -31,12 +52,12 @@ export function HeaderTable() {
         </TableHead>
         <TableBody>
           <TableRow key={"每月營收"}>
-            <TableCell component="th" scope="row">
+            <TableCell component={"th"} scope={"row"}>
               {"每月營收"}
             </TableCell>
           </TableRow>
           <TableRow key={"單月營收年增率 (%)"}>
-            <TableCell component="th" scope="row">
+            <TableCell component={"th"} scope={"row"}>
               {"單月營收年增率 (%)"}
             </TableCell>
           </TableRow>
@@ -46,27 +67,13 @@ export function HeaderTable() {
   );
 }
 
-export function BasicTable() {
+export function BasicTable({
+  monthRevenue,
+  percentage,
+  timestamps,
+}: DataTableProps) {
   const tableRef = useRef<HTMLDivElement>(null);
-  const { revenue, percentage } = monthRevenue.reduce(
-    (acc, cur, _, arr) => {
-      const lastMonth = arr.find(
-        (month) =>
-          cur.revenue_year - 1 === month.revenue_year &&
-          cur.revenue_month === month.revenue_month
-      );
-      if (lastMonth) {
-        acc.revenue.push(cur);
-        acc.percentage.push(cur.revenue / lastMonth.revenue - 1);
-      }
-      return acc;
-    },
-    { revenue: [] as Revenue[], percentage: [] as number[] }
-  );
-
-  const months = revenue.map((month) =>
-    month.date.split("-").slice(0, 2).join("")
-  );
+  const isEmpty = monthRevenue[0]?.stock_id === "EMPTY";
 
   useEffect(() => {
     if (tableRef.current) {
@@ -79,25 +86,25 @@ export function BasicTable() {
 
   return (
     <TableContainer ref={tableRef} component={Paper}>
-      <Table aria-label="simple table">
+      <Table aria-label={"simple table"}>
         <TableHead>
           <TableRow>
-            {months.map((month) => (
-              <TableCell key={month} align="right">
-                {month}
+            {timestamps.map((month) => (
+              <TableCell key={month} align={"right"}>
+                {isEmpty ? "-" : month}
               </TableCell>
             ))}
           </TableRow>
         </TableHead>
         <TableBody>
           <TableRow key={"revenue"}>
-            {revenue.map((month) => (
+            {monthRevenue.map((month) => (
               <TableCell
                 sx={{ fontWeight: 400, border: "1px solid #E9E9E9" }}
                 key={month.date}
-                align="right"
+                align={"right"}
               >
-                {month.revenue / 1000}
+                {isEmpty ? "-" : month.revenue / 1000}
               </TableCell>
             ))}
           </TableRow>
@@ -107,9 +114,9 @@ export function BasicTable() {
               <TableCell
                 sx={{ fontWeight: 400, border: "1px solid #E9E9E9" }}
                 key={index}
-                align="right"
+                align={"right"}
               >
-                {Math.round(percent * 10000) / 100}
+                {isEmpty ? "-" : Math.round(percent * 10000) / 100}
               </TableCell>
             ))}
           </TableRow>

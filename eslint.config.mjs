@@ -11,6 +11,11 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
+  {
+    rules: {
+      'react/jsx-curly-brace-presence': ['error', { props: 'always', children: 'always', propElementValues: 'always' }]
+    }
+  }
 ];
 
 export default eslintConfig;

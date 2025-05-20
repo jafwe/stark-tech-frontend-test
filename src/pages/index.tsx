@@ -1,7 +1,12 @@
 import Autocomplete from "@/components/Autocomplete";
 import CombinedChart from "@/components/CombinedChart";
 import DataTable from "@/components/DataTable";
-import { Revenue, stockInfo, StockOption } from "@/constants/stock-info";
+import {
+  EMPTY_REVENUE,
+  Revenue,
+  stockInfo,
+  StockOption,
+} from "@/constants/stock-info";
 import { autocompleteClasses } from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
@@ -149,8 +154,9 @@ export default function Home() {
   const [revenueList, setRevenueList] = useState<Revenue[]>([]);
   const [yearInterval, setYearInterval] = useState<number>(5);
 
-  const { monthRevenue, percentage, timeStamps } = useMemo(() => {
-    const { monthRevenue, percentage } = revenueList.reduce(
+  const stockData = useMemo(() => {
+    const list = revenueList.length > 0 ? revenueList : EMPTY_REVENUE;
+    const { monthRevenue, percentage } = list.reduce(
       (acc, cur, _, arr) => {
         const lastYearRevenue = arr.find(
           (month) =>
@@ -167,10 +173,10 @@ export default function Home() {
       },
       { monthRevenue: [] as Revenue[], percentage: [] as number[] }
     );
-    const timeStamps = monthRevenue.map((month) =>
+    const timestamps = monthRevenue.map((month) =>
       month.date.split("-").slice(0, 2).join("")
     );
-    return { monthRevenue, percentage, timeStamps };
+    return { monthRevenue, percentage, timestamps };
   }, [revenueList]);
 
   const stockOptions = useMemo(() => {
@@ -271,22 +277,22 @@ export default function Home() {
             <CardContent>
               <Chip label={"每月營收"} />
               <Select
-                variant="standard"
+                variant={"standard"}
                 value={yearInterval.toString()}
                 IconComponent={"span"}
                 onChange={(event: SelectChangeEvent) => {
                   setYearInterval(parseInt(event.target.value));
                 }}
               >
-                <MenuItem value={1}>近 1 年</MenuItem>
-                <MenuItem value={3}>近 3 年</MenuItem>
-                <MenuItem value={5}>近 5 年</MenuItem>
+                <MenuItem value={1}>{"近 1 年"}</MenuItem>
+                <MenuItem value={3}>{"近 3 年"}</MenuItem>
+                <MenuItem value={5}>{"近 5 年"}</MenuItem>
               </Select>
             </CardContent>
             {isLoading ? (
-              <Skeleton variant="rectangular" height={350} width={"100%"} />
+              <Skeleton variant={"rectangular"} height={350} width={"100%"} />
             ) : (
-              <CombinedChart />
+              <CombinedChart {...stockData} />
             )}
           </Card>
 
@@ -295,9 +301,9 @@ export default function Home() {
               <Chip label={"詳細數據"} />
             </CardContent>
             {isLoading ? (
-              <Skeleton variant="rectangular" height={350} width={"100%"} />
+              <Skeleton variant={"rectangular"} height={350} width={"100%"} />
             ) : (
-              <DataTable />
+              <DataTable {...stockData} />
             )}
           </Card>
 
