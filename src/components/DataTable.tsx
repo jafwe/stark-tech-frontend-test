@@ -82,7 +82,7 @@ export function BasicTable({
         behavior: "auto",
       });
     }
-  }, []);
+  }, [monthRevenue]);
 
   return (
     <TableContainer ref={tableRef} component={Paper}>
@@ -104,7 +104,9 @@ export function BasicTable({
                 key={month.date}
                 align={"right"}
               >
-                {isEmpty ? "-" : month.revenue / 1000}
+                {isEmpty
+                  ? "-"
+                  : new Intl.NumberFormat().format(month.revenue / 1000)}
               </TableCell>
             ))}
           </TableRow>
@@ -116,7 +118,11 @@ export function BasicTable({
                 key={index}
                 align={"right"}
               >
-                {isEmpty ? "-" : Math.round(percent * 10000) / 100}
+                {isEmpty
+                  ? "-"
+                  : new Intl.NumberFormat().format(
+                      Math.round(percent * 100) / 100
+                    )}
               </TableCell>
             ))}
           </TableRow>

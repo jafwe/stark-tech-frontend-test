@@ -115,16 +115,15 @@ function EmptyHint() {
     <Box
       sx={{
         position: "absolute",
-        zIndex: 1,
+        zIndex: 2,
         top: 0,
         left: 0,
         width: "100%",
-        height: "100%",
-        backgroundColor: "black",
-        opacity: 0.1,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+        height: 350,
+        backgroundColor: "#00000019",
+        paddingTop: 20,
+        paddingLeft: 40,
+        color: "black",
         fontSize: 24,
       }}
     >

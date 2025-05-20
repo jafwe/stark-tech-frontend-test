@@ -156,8 +156,16 @@ export default function Home() {
 
   const stockData = useMemo(() => {
     const list = revenueList.length > 0 ? revenueList : EMPTY_REVENUE;
+    const mostEarlyYear = new Date().getFullYear() - yearInterval;
+    const thisMonth = new Date().getMonth();
+
     const { monthRevenue, percentage } = list.reduce(
       (acc, cur, _, arr) => {
+        if (
+          cur.revenue_year < mostEarlyYear ||
+          (cur.revenue_year === mostEarlyYear && cur.revenue_month < thisMonth)
+        )
+          return acc;
         const lastYearRevenue = arr.find(
           (month) =>
             cur.revenue_year - 1 === month.revenue_year &&
@@ -166,18 +174,24 @@ export default function Home() {
         if (lastYearRevenue) {
           acc.monthRevenue.push(cur);
           acc.percentage.push(
-            (cur.revenue / lastYearRevenue.revenue - 1) * 100
+            Math.round((cur.revenue / lastYearRevenue.revenue - 1) * 10000) /
+              100
           );
         }
         return acc;
       },
       { monthRevenue: [] as Revenue[], percentage: [] as number[] }
     );
-    const timestamps = monthRevenue.map((month) =>
-      month.date.split("-").slice(0, 2).join("")
+    const timestamps = monthRevenue.map(
+      (revenue) =>
+        `${revenue.revenue_year}${
+          revenue.revenue_month > 10
+            ? revenue.revenue_month
+            : `0${revenue.revenue_month}`
+        }`
     );
     return { monthRevenue, percentage, timestamps };
-  }, [revenueList]);
+  }, [revenueList, yearInterval]);
 
   const stockOptions = useMemo(() => {
     const options = stockInfo.map(
@@ -191,18 +205,20 @@ export default function Home() {
     ).map((optionStr) => JSON.parse(optionStr));
   }, []);
 
+  // Load revenue data from FinMind
   useEffect(() => {
     if (!stock) return;
 
     const getRevenue = async () => {
       try {
         setIsLoading(true);
+        const id = stock.id;
+        const startDate = `${
+          new Date().getFullYear() - 6
+        }-${new Date().getMonth()}-01`;
+        
         const res = await fetch(
-          `https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockMonthRevenue&data_id=${
-            stock.id
-          }&start_date=${
-            new Date().getFullYear() - 6
-          }-${new Date().getMonth()}-01`
+          `https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockMonthRevenue&data_id=${id}&start_date=${startDate}`
         );
         const data = await res.json();
         setRevenueList(data.data);
